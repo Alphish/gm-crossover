@@ -1,5 +1,12 @@
 #macro CROSSOVER_SUBDIRECTORY ""
 
+/// @func crossover_is_supported()
+/// @desc Checks whether the crossover system can work on the given platform.
+/// @returns {Bool}
+function crossover_is_supported() {
+    return os_type == os_windows;
+}
+
 /// @func crossover_get_directory()
 /// @desc Returns the directory with the crossover data.
 /// @returns {String}
@@ -15,14 +22,15 @@ function crossover_get_directory() {
 /// @arg {String} filename      The name of the file to load.
 /// @returns {String,Undefined}
 function crossover_load_string(_filename) {
+    if (!crossover_is_supported())
+        return undefined;
+    
     var _path = crossover_get_directory() + "\\" + _filename;
     
-    var _buffer;
-    try {    
-        _buffer = buffer_load(_path);
-    } catch (ex) {
+    var _buffer = buffer_load(_path);
+    if (_buffer == -1)
         return undefined;
-    }
+    
     var _result = buffer_read(_buffer, buffer_string);
     buffer_delete(_buffer);
     return _result;
@@ -33,6 +41,9 @@ function crossover_load_string(_filename) {
 /// @arg {String} filename      The name of the file to save.
 /// @arg {String} content       The content to save.
 function crossover_save_string(_filename, _content) {
+    if (!crossover_is_supported())
+        return;
+    
     var _path = crossover_get_directory() + "\\" + _filename;
     
     var _buffer = buffer_create(string_length(_content), buffer_grow, 1);
